@@ -1,0 +1,211 @@
+game Enigme = {
+	lieux: [{
+		nom: Enigme,
+		description: [{
+			texte: "Enigme",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [{
+			personne: Sphinx,
+			visible: {
+				ET: [{
+					objet: Tentative,
+					quantite: 1,
+					comparateur: >=
+				},{
+					connaissance: Reussite,
+					possession: false
+				}]
+			},
+			obligatoire: true
+		}],
+		chemins: [{
+			description: [{
+				texte: "Dommage !",
+				condition: true
+			}],
+			ouvert: true,
+			visible: {
+				objet: Tentative,
+				quantite: 0,
+				comparateur: =
+			},
+			destination: Echec,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		},{
+			description: [{
+				texte: "Bien Joué !",
+				condition: true
+			}],
+			ouvert: true,
+			visible: {
+				connaissance: Reussite,
+				possession: true
+			},
+			destination: Succes,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		}],
+		fin: false,
+		depotObjets: false
+	},{
+		nom: Succes,
+		description: [{
+			texte: "Succès",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [],
+		chemins: [],
+		fin: true,
+		depotObjets: false
+	},{
+		nom: Echec,
+		description: [{
+			texte: "Echec",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [],
+		chemins: [],
+		fin: true,
+		depotObjets: false
+	}],
+	objets: [{
+		nom: Tentative,
+		description: [{
+			texte: "Tentative",
+			condition: true
+		}],
+		taille: 0
+	}],
+	transformations: [],
+	connaissances: [{
+		nom: Reussite,
+		description: [{
+			texte: "Réussite",
+			condition: true
+		}]
+	}],
+	personnes: [{
+		nom: Sphinx,
+		description: [{
+			texte: "3+3",
+			condition: true
+		}],
+		interaction: {
+			choixDebut: {
+				nom: Reponse,
+				actions: [{
+					description: [{
+						texte: "6",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [{
+						connaissance: Reussite,
+						transmis: true
+					}],
+					objetsTransmis: [],
+					objetConsommes: [],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "7",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "5",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "12",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "3",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "9",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				}],
+				fin: true
+			}
+		}
+	}],
+	explorateur: {
+		objetsPossedes: [{
+			objet: Tentative,
+			quantite: 3
+		}],
+		connaissancesPossedees: [],
+		tailleMax: 100
+	},
+	lieuDepart: Enigme
+}

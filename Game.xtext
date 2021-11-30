@@ -1,0 +1,227 @@
+grammar game.xtext.Game with org.eclipse.xtext.common.Terminals
+
+generate game "http://www.xtext.game/Game"
+
+Game:
+	'game' name=ID '=' '{'
+		'lieux' ':' '[' lieux+=Lieu ( ',' lieux+=Lieu )* ']' ','
+		'objets' ':' '[' (objets+=Objet ( ',' objets+=Objet )*)? ']' ','
+		'transformations' ':' '[' (transformations+=Transformation ( ',' transformations+=Transformation )*)? ']' ','
+		'connaissances' ':' '[' (connaissances+=Connaissance ( ',' connaissances+=Connaissance )*)? ']' ','
+		'personnes' ':' '[' (personnes+=Personne ( ',' personnes+=Personne )*)? ']' ','
+		'explorateur' ':' explorateur=Explorateur ','
+		'lieuDepart' ':' lieuDepart=[Lieu]
+	'}';
+	
+Lieu:
+	'{'
+		'nom' ':' name=ID ','
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']' ','
+		'connaissancesPresentes' ':' '[' (connaissancesPresentes+=ConnaissancePresente ( ',' connaissancesPresentes+=ConnaissancePresente )*)? ']' ','
+		'objetsPresents' ':' '[' (objetsPresents+=ObjetPresent ( ',' objetsPresents+=ObjetPresent )*)? ']' ','
+		'personnesPresentes' ':' '[' (personnesPresentes+=PersonnePresente ( ',' personnesPresentes+=PersonnePresente )*)? ']' ','
+		'chemins' ':' '[' (chemins+=Chemin ( ',' chemins+=Chemin )*)? ']' ','
+		'fin' ':' fin=Boolean ','
+		'depotObjets' ':' conditionDepot=Condition
+	'}';
+
+enum Boolean:
+	Btrue = 'true'
+	| Bfalse = 'false';
+	
+Condition:
+	Disjonction | Conjonction | Litteral | {True} 'true' | {False} 'false';
+
+Disjonction:
+	'{'
+		'OU' ':' '[' conjonctions+=ConditionInt ',' conjonctions+=ConditionInt (',' conjonctions+=ConditionInt )* ']'
+	'}';
+	
+ConditionInt:
+	Conjonction | Litteral;
+	
+Conjonction:
+	'{'
+		'ET' ':' '[' litteraux+=Litteral ',' litteraux+=Litteral (',' litteraux+=Litteral )* ']'
+	'}';
+	
+Litteral:
+	LitteralConnaissance | LitteralObjet;
+
+LitteralConnaissance:
+	'{'
+		'connaissance' ':' connaissance=[Connaissance] ','
+		'possession' ':' possession=Boolean
+	'}';
+	
+LitteralObjet:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT ','
+		'comparateur' ':' comparateur=Comparateur
+	'}';
+
+enum Comparateur :
+	superieur = '>'
+	| inferieur = '<'
+	| superieurOuEgal = '>='
+	| inferieurOuEgal = '<='
+	| egal = '=';
+
+ConnaissancePresente:
+	'{'
+		'connaissance' ':' connaissance=[Connaissance] ','
+		'visible' ':' conditionVisible=Condition
+	'}';
+
+ObjetPresent:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'visible' ':' conditionVisible=Condition ','
+		'quantite' ':' quantite=INT
+	'}';
+	
+PersonnePresente:
+	'{'
+		'personne' ':' personne=[Personne] ','
+		'visible' ':' conditionVisible=Condition ','
+		'obligatoire' ':' obligatoire=Boolean
+	'}';
+
+Chemin:
+	'{'
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']' ','
+		'ouvert' ':' conditionOuvert=Condition ','
+		'visible' ':' conditionVisible=Condition ','
+		'destination' ':' destination=[Lieu] ','
+		'obligatoire' ':' obligatoire=Boolean ','
+		'connaissancesTransmises' ':' '[' (connaissancesTransmises+=ConnaissanceTransmise ( ',' connaissancesTransmises+=ConnaissanceTransmise )*)? ']' ','
+		'objetsTransmis' ':' '[' (objetsTransmis+=ObjetTransmis ( ',' objetsTransmis+=ObjetTransmis )*)? ']' ','
+		'objetConsommes' ':' '[' (objetConsommes+=ObjetConsomme ( ',' objetConsommes+=ObjetConsomme )*)? ']'
+	'}';
+	
+ConnaissanceTransmise:
+	'{'
+		'connaissance' ':' connaissance=[Connaissance] ','
+		'transmis' ':' conditionTransmission=Condition
+	'}';
+
+ObjetTransmis:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT ','
+		'transmis' ':' conditionTransmission=Condition
+	'}';
+
+ObjetConsomme:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT ','
+		'consomme' ':' conditionConsommation=Condition
+	'}';
+
+Objet:
+	'{'
+		'nom' ':' name=ID ','
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']' ','
+		'taille' ':' taille=INT
+	'}';
+	
+Transformation:
+	'{'
+		'objetsTransformes' ':' '[' objetsTransformes+=objetTransforme ( ',' objetsTransformes+=objetTransforme )* ']' ','
+		'resultat' ':' '[' resultat+=Resultat ( ',' resultat+=Resultat )* ']'
+	'}';
+	
+Resultat:
+	'{'
+		'resultatCondition' ':' resultatCondition=Condition ','
+		'objetsObtenus' ':' '[' objetsObtenus+=objetObtenu ( ',' objetsObtenus+=objetObtenu )* ']' ','
+	'}';
+	
+objetTransforme:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT
+	'}';
+
+objetObtenu:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT
+	'}';
+	
+Connaissance:
+	'{'
+		'nom' ':' name=ID ','
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']'
+	'}';
+	
+Personne:
+	'{'
+		'nom' ':' name=ID ','
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']' ','
+		'interaction' ':' interaction=Interaction
+	'}';
+	
+Interaction:
+	InteractionListe | InteractionUnique;
+	
+InteractionListe:
+	'{'
+		'listeChoixDebut' ':' '[' listeChoixDebut+=ChoixDebut ( ',' listeChoixDebut+=ChoixDebut )* ']'
+	'}';
+	
+InteractionUnique:
+	'{'
+		'choixDebut' ':' choixDebut=Choix
+	'}';
+	
+ChoixDebut:
+	'{'
+		'choix' ':' choix=Choix ','
+		'debut' ':' conditionDebut=Condition
+	'}';
+
+Choix:
+	'{'
+		'nom' ':' name=ID ','
+		'actions' ':' '[' (actions+=Action ( ',' actions+=Action )*)? ']' ','
+		'fin' ':' conditionFin=Condition
+	'}';
+	
+Action:
+	'{'
+		'description' ':' '[' description+=DescriptionTextuelle ( ',' description+=DescriptionTextuelle )* ']' ','
+		'actionProposeeCondition' ':' actionProposeeCondition=Condition ','
+		'choixPrecedents' ':' '[' (choixPrecedents+=[Choix] ( ',' choixPrecedents+=[Choix] )*)? ']' ','
+		'connaissancesTransmises' ':' '[' (connaissancesTransmises+=ConnaissanceTransmise ( ',' connaissancesTransmises+=ConnaissanceTransmise )*)? ']' ','
+		'objetsTransmis' ':' '[' (objetsTransmis+=ObjetTransmis ( ',' objetsTransmis+=ObjetTransmis )*)? ']' ','
+		'objetConsommes' ':' '[' (objetConsommes+=ObjetConsomme ( ',' objetConsommes+=ObjetConsomme )*)? ']' ','
+		'prochainChoix' ':' (prochainChoix=Choix | 'null')
+	'}';
+	
+Explorateur:
+	'{'
+		'objetsPossedes' ':' '[' (objetsPossedes+=ObjetPossede ( ',' objetsPossedes+=ObjetPossede )*)? ']' ','
+		'connaissancesPossedees' ':' '[' (connaissancesPossedees+=ConnaissancePossedee ( ',' connaissancesPossedees+=ConnaissancePossedee )*)? ']' ','
+		'tailleMax' ':' tailleMax=INT
+	'}';
+	
+ObjetPossede:
+	'{'
+		'objet' ':' objet=[Objet] ','
+		'quantite' ':' quantite=INT
+	'}';
+	
+ConnaissancePossedee:
+	'{'
+		'connaissance' ':' connaissance=[Connaissance]
+	'}';
+	
+DescriptionTextuelle:
+	'{'
+		'texte' ':' texte=STRING ','
+		'condition' ':' condition=Condition
+	'}'
+;
