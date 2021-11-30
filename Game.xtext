@@ -9,8 +9,7 @@ Game:
 		'transformations' ':' '[' (transformations+=Transformation ( ',' transformations+=Transformation )*)? ']' ','
 		'connaissances' ':' '[' (connaissances+=Connaissance ( ',' connaissances+=Connaissance )*)? ']' ','
 		'personnes' ':' '[' (personnes+=Personne ( ',' personnes+=Personne )*)? ']' ','
-		'explorateur' ':' explorateur=Explorateur ','
-		'lieuDepart' ':' lieuDepart=[Lieu]
+		'explorateur' ':' explorateur=Explorateur
 	'}';
 	
 Lieu:
@@ -205,7 +204,8 @@ Explorateur:
 	'{'
 		'objetsPossedes' ':' '[' (objetsPossedes+=ObjetPossede ( ',' objetsPossedes+=ObjetPossede )*)? ']' ','
 		'connaissancesPossedees' ':' '[' (connaissancesPossedees+=ConnaissancePossedee ( ',' connaissancesPossedees+=ConnaissancePossedee )*)? ']' ','
-		'tailleMax' ':' tailleMax=INT
+		'tailleMax' ':' tailleMax=INT ','
+		'position' ':' position=[Lieu]
 	'}';
 	
 ObjetPossede:

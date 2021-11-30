@@ -205,7 +205,7 @@ game Enigme = {
 			quantite: 3
 		}],
 		connaissancesPossedees: [],
-		tailleMax: 100
-	},
-	lieuDepart: Enigme
+		tailleMax: 100,
+		position: Enigme
+	}
 }
