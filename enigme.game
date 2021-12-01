@@ -99,7 +99,7 @@ game Enigme = {
 	personnes: [{
 		nom: Sphinx,
 		description: [{
-			texte: "3+3",
+			texte: "Le Sphinx demande : 3+3 ?",
 			condition: true
 		}],
 		interaction: {
@@ -195,7 +195,7 @@ game Enigme = {
 					}],
 					prochainChoix: null
 				}],
-				fin: true
+				fin: false
 			}
 		}
 	}],
