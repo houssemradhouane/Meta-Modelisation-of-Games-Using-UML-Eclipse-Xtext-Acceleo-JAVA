@@ -1,0 +1,23 @@
+pl Enigme (1)
+pl ConnaissanceReussiteNonAcquise (1)
+pl Tentative (3)
+pl SphinxVisible
+pl Choix
+pl ReponseCorrecte
+pl ConnaissanceReussiteAcquise
+pl CheminReussiteVisible
+pl Reussite
+pl ReponseFausse
+pl CheminEchecVisible
+pl Echec
+pl TentativesConsommes
+tr VoirSphinx Enigme ConnaissanceReussiteNonAcquise Tentative -> SphinxVisible
+tr Interagir SphinxVisible -> Choix
+tr RepondreCorrectement Choix -> ReponseCorrecte
+tr AcquerirConnaissance ReponseCorrecte -> ConnaissanceReussiteAcquise Enigme
+tr VerifierReussite ConnaissanceReussiteAcquise Enigme -> CheminReussiteVisible
+tr FranchirCheminReussite CheminReussiteVisible -> Reussite
+tr RepondreMal Choix -> ReponseFausse
+tr RetourDebut ReponseFausse -> TentativesConsommes Enigme ConnaissanceReussiteNonAcquise
+tr VerifierEchec TentativesConsommes*3 Enigme -> CheminEchecVisible
+tr FranchirCheminEchec CheminEchecVisible -> Echec
