@@ -1,0 +1,525 @@
+-- @path MM=file:/home/hradhoua/2A/sys_conc/TP1/TP-Philo/game.xtext.game/model/generated/Game.ecore
+-- @path MM1=file:/home/hradhoua/2A/sys_conc/TP1/TP-Philo/game.petrinet/petrinet.ecore
+
+module game2petrinet;
+create OUT : MM1 from IN : MM;
+
+helper context MM!Lieu
+def: getGame() : MM!Game = 
+	MM!Game.allInstances()
+	-> select (g | g.lieux->includes(self))
+	->asSequence()->first();
+
+helper context MM!Connaissance
+def: getGame() : MM!Game = 
+	MM!Game.allInstances()
+	-> select (g | g.connaissances->includes(self))
+	->asSequence()->first();
+
+helper context MM!Objet
+def: getGame() : MM!Game = 
+	MM!Game.allInstances()
+	-> select (g | g.objets->includes(self))
+	->asSequence()->first();
+
+helper context MM!PersonnePresente
+def: getLieu() : MM!Lieu =
+	MM!Lieu.allInstances()
+	-> select (l | l.personnesPresentes->includes(self))
+	->asSequence()->first();
+
+helper context MM!Personne
+def : getPersonnePresente() : MM!Personne =
+    MM!PersonnePresente.allInstances()
+	-> select(p | p.personne = self)
+	-> asSequence()
+	->first();
+
+helper context MM!Personne
+def: getLieu() : MM!Lieu =
+	MM!Lieu.allInstances()
+	-> select (l | l.personnesPresentes->includes(self.getPersonnePresente()))
+	->asSequence()->first();
+
+helper context MM!Objet
+def: checkObNonPossede() : MM!Objet =
+	MM!ObjetPossede.allInstances()
+	-> select (e | e.objet = self)
+	-> isEmpty();
+
+helper context MM!Objet
+def: getQteOPossede() : MM!Objet =
+	MM!ObjetPossede.allInstances()
+	-> select (e | e.objet = self)
+	->asSequence()
+	-> first().quantite;
+
+helper context MM!Connaissance
+def: checkCoNonPossede() : MM!Connaissance =
+	MM!ConnaissancePossedee.allInstances()
+	-> select (c | c.connaissance = self)
+	-> isEmpty();
+
+helper context MM!Lieu
+def: checkPersonneObligatoire() : MM!Lieu =
+    MM!Lieu.allInstances()
+	->select(l | l = self)
+	->collect(e | e.personnesPresentes)
+	->flatten()
+	->collect(p | p.obligatoire = true)
+	->isEmpty();
+
+helper context MM!Lieu
+def: checkCheminObligatoire() : MM!Chemin =
+    MM!Lieu.allInstances()
+	->select(l | l = self)
+	->collect(e | e.chemins)
+	->flatten()
+	->collect(p | p.obligatoire = true)
+	->isEmpty();
+
+helper context MM!Action
+def: getChoixfromAction() : MM!Action =
+	MM!Choix.allInstances()
+	->select (c | c.actions ->includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!Choix
+def: getChoixDfromChoix() : MM!Choix =
+	MM!ChoixDebut.allInstances()
+	->select (c |c.choix = self)
+	->asSequence()
+	->first();
+
+helper context MM!Choix
+def: getPersonne(): MM!Choix =
+	let unq : Collection(MM!Personne) = 
+		MM!Personne.allInstances()
+		->select(p | p.interaction.oclIsTypeOf(MM!InteractionUnique))
+		->select(p | p.interaction.choixDebut = self)
+	in
+		if unq->notEmpty()
+		then
+			unq->asSequence() ->first()
+		else
+			MM!Personne.allInstances()
+			->select(p | p.interaction.oclIsTypeOf(MM!InteractinListe))
+			->select(p | p.interaction.listeChoixDebut->includes(self.getChoixDfromChoix()))
+			->asSequence()->first()
+	 	endif;
+
+helper context MM!ConnaissanceTransmise
+def : getAction() : MM!ConnaissanceTransmise  =
+	MM!Action.allInstances()
+	-> select(a | a.connaissancesTransmises -> includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!ObjetTransmis
+def : getAction() : MM!ObjetTransmis  =
+	MM!Action.allInstances()
+	-> select(a | a.objetsTransmis -> includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!ObjetConsomme
+def : getAction() : MM!ObjetConsomme  =
+	MM!Action.allInstances()
+	-> select(a | a.objetConsommes -> includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!Chemin
+def : getOrigine() : MM!Chemin =
+	MM!Lieu.allInstances()
+	-> select ( l | l.chemins -> includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!Disjonction
+def : conditionPV() : MM!Disjonction =
+	MM!PersonnePresente.allInstances()
+	->select( p | p.conditionVisible = self);
+	
+helper context MM!Disjonction
+def : conditionCV() : MM!Disjonction =
+	MM!Chemin.allInstances()
+	->select( p | p.conditionVisible = self);
+	
+helper context MM!Disjonction
+def : conditionCO() : MM!Disjonction =
+	MM!Chemin.allInstances()
+	->select( p | p.conditionOuvert = self)	;
+	
+helper context MM!Disjonction
+def : conditionCT() : MM!Disjonction =
+	MM!ConnaissanceTransmise.allInstances()
+	->select( p | p.conditionTransmission = self);	
+	
+helper context MM!Disjonction
+def : conditionOT() : MM!Disjonction =
+	MM!ObjetTransmis.allInstances()
+	->select( p | p.conditionTransmission = self);
+	
+helper context MM!Disjonction
+def : conditionOC() : MM!Disjonction =
+	MM!ObjetConsomme.allInstances()
+	->select( p | p.conditionConsommation = self);
+	
+helper context MM!Disjonction
+def : conditionFin() : MM!Disjonction =
+	MM!Choix.allInstances()
+	->select( p | p.conditionFin = self);	
+	
+helper context MM!Conjonction
+def : getDisjonction() : MM!Conjonction =
+	MM!Disjonction.allInstances()
+	->select ( d | d.conjonctions ->includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!LitteralObjet
+def : getConjonction() : MM!LitteralObjet =
+	MM!Conjonction.allInstances()
+	->select ( d | d.litteraux ->includes(self))
+	->asSequence()
+	->first();
+
+helper context MM!LitteralConnaissance
+def : getConjonction() : MM!LitteralConnaissance =
+	MM!Conjonction.allInstances()
+	->select ( d | d.litteraux ->includes(self))
+	->asSequence()
+	->first();
+
+-- Traduire un game en un petrinet de même nom
+rule Game2Petrinet {
+	from g: MM!Game
+	to pn: MM1!Net (name <- g.name) 
+}
+
+-- Traduire un lieu en un motif sur le réseau de Petri
+rule Lieu2Petrinet {
+	from l: MM!Lieu
+	to p_lieu : MM1!Place(
+		name <- l.name,
+		nbJetons <- if l.getGame().explorateur.position = l
+					then 1
+					else 0
+					endif
+		),
+	   pno_possible : MM1!Place(
+	   	name <- l.name+'_pno_possibles',
+		nbJetons <- if l.checkPersonneObligatoire() then 1 else 0 endif),
+	   cno_possible : MM1!Place(
+	   	name <- l.name+'_cno_possibles',
+		nbJetons <- 1),
+	   check_pno : MM1!Transition(
+	   	name <- l.name+'_check_pno'),
+	   l_to_check : MM1!ArcPversT(
+	   	origine <- p_lieu,
+		destination <- check_pno,
+		poids <- 1),
+	   check_to_possible : MM1!ArcTversP(
+	   	origine <- check_pno,
+		destination <- pno_possible,
+		poids <- 1)
+	do{
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(p_lieu);
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(pno_possible);
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(check_pno);
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(l_to_check);
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(check_to_possible);
+		thisModule.resolveTemp(l.getGame(), 'pn').netElements <- thisModule.resolveTemp(l.getGame(), 'pn').netElements.append(cno_possible);
+	}
+}
+
+-- Traduire un objet en un motif sur le réseau de Petri
+rule Objet2Petrinet {
+		from o : MM!Objet
+		to p_objet : MM1!Place(
+			name <- o.name,
+			nbJetons <- if o.checkObNonPossede() then 0
+						else o.getQteOPossede()
+						endif
+			)
+		do{
+		thisModule.resolveTemp(o.getGame(), 'pn').netElements <- thisModule.resolveTemp(o.getGame(), 'pn').netElements.append(p_objet);
+	}
+}
+
+-- Traduire une connaissance en un motif sur le réseau de Petri
+rule Connaissance2Petrinet {
+		from c : MM!Connaissance
+		to p_connaissance : MM1!Place(
+			name <- c.name,
+			nbJetons <- if c.checkCoNonPossede() then 0
+						else 1
+						endif
+			)
+		do {
+			thisModule.resolveTemp(c.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getGame(), 'pn').netElements.append(p_connaissance);
+	}
+}
+
+-- Traduire une Personne en un motif sur le réseau de Petri
+rule Personne2Petrinet {
+	from p : MM!PersonnePresente
+	to 
+	   v_personne : MM1!Transition(
+	   	name <- 'voir_'+p.personne.name),
+	   personne_v : MM1!Place(
+	   	name <- p.personne.name + '_visible'),
+	   v_to_v : MM1!ArcTversP(
+	   	origine <- v_personne,
+		destination <- personne_v,
+		poids <- 1),
+	   l_to_p : MM1!ArcPversT(
+	   	origine <- if p.obligatoire then thisModule.resolveTemp(p.getLieu(),'p_lieu')
+                   else thisModule.resolveTemp(p.getLieu(),'pno_possible')
+				   endif,
+	    destination <- v_personne,
+		poids <- if p.obligatoire then 1 else 2 endif)
+	do {
+		thisModule.resolveTemp(p.getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements.append(v_personne);
+		thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements <- thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements.append(personne_v);
+		thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements <- thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements.append(v_to_v);
+		thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements <- thisModule.resolveTemp(p.getLieu().getGame(),'pn').netElements.append(l_to_p);
+
+	}
+}
+
+-- Traduire un Choix en un motif de réseau de pétri
+rule Choix2Petrinet {
+	from c : MM!Choix
+	to
+		t_choix : MM1!Transition(
+			name <- 'choisir' + c.name),
+		p_choix : MM1!Place(
+			name <- 'choix_' + c.name,
+			nbJetons <- 0),
+		a_choix : MM1!ArcPversT(
+			origine <- thisModule.resolveTemp(c.getPersonne().getPersonnePresente(), 'personne_v'),
+			destination <- t_choix,
+			poids <- 1),
+		q_choix : MM1!Transition(
+			name<-'quitter'),
+		apq_choix : MM1!ArcTversP(
+			origine <- q_choix,
+			destination <- thisModule.resolveTemp(c.getPersonne().getPersonnePresente().getLieu(), 'p_lieu' ),
+			poids <-1),
+		afpno_choix : MM1!ArcTversP(
+			origine <- q_choix,
+			destination <- thisModule.resolveTemp(c.getPersonne().getPersonnePresente().getLieu(),'pno_possible'),
+			poids <- 1),
+		aq_choix : MM1!ArcPversT(
+			origine <- p_choix,
+			destination <- q_choix,
+			poids <- if c.conditionFin then 1 else 2 endif),
+		ai_choix : MM1!ArcTversP(
+			origine <- t_choix,
+			destination <- p_choix,
+			poids <- 1)
+		
+	do {
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(t_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(p_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(a_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(ai_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(q_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(aq_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(apq_choix);
+		thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(c.getPersonne().getLieu().getGame(), 'pn').netElements.append(afpno_choix);
+	}
+	
+}
+
+-- Traduire une action en un motif de réseau de Petri
+rule Action2Petrinet {
+	from a : MM!Action
+	to 
+		t_action : MM1!Transition(
+			name <- a.description ->asSequence() ->first().texte),
+		af_action : MM1!ArcTversP(
+			origine <- t_action,
+			destination <- thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getPersonnePresente(),'personne_v'),
+			poids <- 1),
+		ai_action : MM1!ArcPversT(
+			origine <- thisModule.resolveTemp(a.getChoixfromAction(),'p_choix'),
+			destination <- t_action)
+	do {
+		thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(t_action);
+		thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(af_action);
+		thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(a.getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(ai_action);	
+	}
+}
+
+-- Traduire une ConnaissanceTransmise en un motif de Petri
+rule ConnaissanceT2Petrinet {
+	from ct : MM!ConnaissanceTransmise
+	to arc_ct : MM1!ArcTversP(
+		origine <- thisModule.resolveTemp(ct.getAction(),'t_action'),
+		destination <- thisModule.resolveTemp(ct.connaissance,'p_connaissance'),
+		poids <- 1)
+	do {
+		thisModule.resolveTemp(ct.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(ct.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(arc_ct);
+	}
+}
+
+-- Traduire une ObjetTransmis en un motif de Petri
+rule ObjetT2Petrinet {
+	from ot : MM!ObjetTransmis
+	to arc_ot : MM1!ArcTversP(
+		origine <- thisModule.resolveTemp(ot.getAction(),'t_action'),
+		destination <- thisModule.resolveTemp(ot.objet,'p_objet'),
+		poids <- ot.quantite)
+	do {
+		thisModule.resolveTemp(ot.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(ot.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(arc_ot);
+	}
+}
+
+-- Traduire une ObjetConsome en un motif de Petri
+rule ObjetC2Petrinet {
+	from oc : MM!ObjetConsomme
+	to arc_oc : MM1!ArcPversT(
+		origine <- thisModule.resolveTemp(oc.objet,'p_objet'),
+		destination <- thisModule.resolveTemp(oc.getAction(),'t_action') ,
+		poids <- oc.quantite)
+	do {
+		thisModule.resolveTemp(oc.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements <- thisModule.resolveTemp(oc.getAction().getChoixfromAction().getPersonne().getLieu().getGame(), 'pn').netElements.append(arc_oc);
+	}
+}
+
+-- Traduire un chemin en un motif de réseau de Petri
+rule Chemin2Petrinet {
+	from c : MM!Chemin
+	to
+		p_visible : MM1!Place(
+			name <- c.destination.name +'_visible',
+			nbJetons <- 0),
+		p_ouvert : MM1!Place(
+			name <- c.destination.name +'_ouvert',
+			nbJetons <- 0),
+		t_visible : MM1!Transition(
+			name <- 'verfier_'+c.destination.name +'_visible'),
+		t_ouvert : MM1!Transition(
+			name <- 'verfier_'+c.destination.name +'_ouvert'),
+		a_visible : MM1!ArcTversP(
+			origine <- t_visible,
+			destination <- p_visible,
+			poids <- 1),
+		a_ouvert : MM1!ArcTversP(
+			origine <- t_ouvert,
+			destination <- p_ouvert,
+			poids <- 1),
+		t_verifier : MM1!Transition(
+			name <- 'verifier_'+c.destination.name),
+		ra_lieu : MM1!ReadArc(
+			place <- thisModule.resolveTemp(c.getOrigine(), 'p_lieu'),
+			transition <- t_verifier,
+			poids <- 1),
+		a_cno : MM1!ArcPversT(
+			origine <- thisModule.resolveTemp(c.getOrigine(), 'cno_possible'),
+			destination <- t_verifier,
+			poids <- 1),
+		a_retour_cno : MM1!ArcTversP(
+			origine <- t_verifier,
+			destination <- thisModule.resolveTemp(c.getOrigine(), 'cno_possible'),
+			poids <- if c.obligatoire then 0 else 1 endif),
+		p_franchissable : MM1!Place(
+			name <- c.destination.name +'_franchissable',
+			nbJetons <- 0),
+		a_verifier : MM1!ArcTversP(
+			origine <- t_verifier,
+			destination <- p_franchissable,
+			poids <- 1),
+		t_aller : MM1!Transition(
+			name <- 'aller_vers_'+c.destination.name ),
+		a_aller : MM1!ArcPversT(
+			origine <- p_franchissable,
+			destination <- t_aller,
+			poids <- 1),
+		a_aller_consom : MM1!ArcPversT(
+			origine <- thisModule.resolveTemp(c.getOrigine(), 'p_lieu'),
+			destination <- t_aller,
+			poids <- 1),
+		a_byebye : MM1!ArcTversP(
+			origine <- t_aller,
+			destination <- thisModule.resolveTemp(c.destination, 'p_lieu'),
+			poids <- 1)
+	    do {
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(p_visible);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(p_ouvert);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(t_visible);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(t_ouvert);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_visible);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_ouvert);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(t_verifier);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(ra_lieu);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_cno);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_retour_cno);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(p_franchissable);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_verifier);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(t_aller);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_aller);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_aller_consom);
+	    	thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements <- thisModule.resolveTemp(c.destination.getGame(), 'pn').netElements.append(a_byebye);
+	    	
+	    }
+}
+
+-- Traduire une disjonction en un motif de réseau de Petri
+rule Disjonction2Petrinet {
+	from  d : MM!Disjonction
+	to p_disjonction : MM1!Place (
+		name <- 'disjonction',
+		nbJetons <- 0),
+	   a_disjonction : MM1!ArcPversT(
+	   	origine <- p_disjonction,
+		destination <- if d.conditionPV()->notEmpty() then thisModule.resolveTemp(d.conditionPV()->asSequence()->first(), 'v_personne')
+					   else if d.conditionCV()->notEmpty() then thisModule.resolveTemp(d.conditionCV()->asSequence()->first(), 't_visible') 
+					   else if d.conditionCO()->notEmpty() then thisModule.resolveTemp(d.conditionCO()->asSequence()->first(), 't_ouvert')
+					   else if d.conditionFin()->notEmpty() then thisModule.resolveTemp(d.conditionFin()->asSequence()->first(), 'q_choix')
+					   else OclUndefined
+					   endif
+					   endif
+					   endif
+					   endif,
+		poids <- 1)
+}
+
+-- Traduire une conjonction en un motif de réseau de Petri
+rule Conjonction2Petrinet {
+	from  d : MM!Conjonction
+	to p_conjonction : MM1!Transition (
+		name <- 'conjonction'
+		),
+	   a_conjonction : MM1!ArcTversP (
+	   	origine <- p_conjonction,
+		destination <- thisModule.resolveTemp(d.getDisjonction(),'p_disjonction'),
+		poids <- 1)	
+}
+
+-- Traduire une LitteralObjet en un motif de réseau de Petri
+rule LitteralO2Pertinet {
+	from l : MM!LitteralObjet
+	to a_lo : MM1!ReadArc (
+		place <- thisModule.resolveTemp(l.objet,'p_objet'),
+		transition <- thisModule.resolveTemp(l.getConjonction(),'p_conjonction'),
+		poids <- l.quantite)
+}
+
+-- Traduire une LitteralConnaissance en un motif de réseau de Petri
+rule LitteralC2Pertinet {
+	from l : MM!LitteralConnaissance
+	to a_lo : MM1!ReadArc (
+		place <- thisModule.resolveTemp(l.connaissance,'p_objet'),
+		transition <- thisModule.resolveTemp(l.getConjonction(),'p_conjonction'),
+		poids <- if l.possession then 1 else 0 endif)
+}
+
+
+
+
+
