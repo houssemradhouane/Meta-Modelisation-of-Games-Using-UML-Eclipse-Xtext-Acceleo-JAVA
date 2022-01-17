@@ -1,0 +1,126 @@
+import 'game.ecore'
+
+package game
+
+ 				
+context Game
+	-- Verifier que le nom du jeu n'est pas nul
+	inv nomjeuNul ('Le jeu n a pas un nom'):
+		name <> null
+		
+	-- Verifier que le nom du jeu n'est pas vide
+	inv nomjeuVide ('Le nom du jeu est vide'):
+		name <> ''		
+		
+	--Les elements du jeu doivent avoir des noms différents
+	inv nomLieuUnique :
+		lieux -> forAll(e1 ,e2 | e1.nom = e2.nom implies e1 = e2)
+	
+	inv nomObjetUnique :
+		objets -> forAll(e1 ,e2 | e1.nom = e2.nom implies e1 = e2)
+	
+	inv nomConnaissanceUnique :
+		connaissances -> forAll(e1 ,e2 | e1.nom = e2.nom implies e1 = e2)
+	
+	inv nomPersonneUnique :
+		personnes -> forAll(e1 ,e2 | e1.nom = e2.nom implies e1 = e2)
+
+context Explorateur
+ 	
+ 	--Le joueur a une taille d'inventaire positive
+ 	inv tailleinventairePositive : tailleMax >= 0
+ 	
+ 	--Le joueur doit avoir une position au début 
+	inv lieuDebut : 
+		position <> null
+ 	
+ 	--Le joueur ne peut pas posseder deux objets identiques 
+ 	inv objetsDifferent :
+ 		objetsPossedes -> forAll(o1, o2 | o1.objet.nom = o2.objet.nom implies o1 = o2) 
+
+	 --Le joueur ne peut pas posseder deux connaissances identiques 
+ 	inv connaissancesDifferent :
+ 		connaissancesPossedees -> forAll(c1, c2 | c1.connaissance.nom = c2.connaissance.nom implies c1 = c2) 
+
+	-- Les objets définis dans un lieu doivent etre défini initialement dans la classe joueur
+	inv objetslieuExistant :
+		Explorateur.allInstances() -> collect(objetsPossedes.objet.nom)
+							  ->  includesAll(Lieu.allInstances().objetsPresents.objet.nom)
+							  
+	-- Les connaissances définies dans un lieu doivent etre défini initialement dans la classe joueur
+	inv connaissanceslieuExistant :
+		Explorateur.allInstances() -> collect(connaissancesPossedes.connaissance.nom)
+							  ->  includesAll(Lieu.allInstances().connaissancesPresentes.connaissance.nom)					  
+
+context Lieu
+	
+	--Un lieu ne peut pas avoir deux personnes identiques 
+	inv personneUnique : 
+		personnesPresentes -> forAll(p1,p2 | p1.personne.nom = p2.personne.nom implies p1 = p2)
+		
+	
+context Chemin 
+
+	--Le lieu destination doit forcement exister
+	inv lieuDifferent :
+		destination <> null
+		
+context Objet 
+
+	--Un objet a une taille positive 
+	inv tailleobjetPositive : taille >= 0
+	
+context ObjetTransmis 
+	--Un objet transmis a une quantite positive
+	inv quantiteobjetPositive : quantite >= 0
+
+context ObjetConsommes
+	--Un objet consomme a une quantite positive
+	inv quantiteobjetPositive : quantite >= 0
+
+context objetTransforme
+
+	--La quantite à transformer doit etre positive 
+	inv quantiteobjetTransformation : quantite >= 0
+
+context objetObtenu
+
+	--La quantite à obtenir doit etre positive 
+	inv quantiteobjetObtention : quantite >= 0	
+
+context InteractionListe
+		
+	--Les choix offerts par l'interaction doivent etre differents
+	inv choixDifferent : 
+		listeChoixDebut -> forAll(ch1, ch2 | ch1.choix.nom = ch2.choix.nom implies ch1 = ch2)
+		
+context InteractionUnique
+
+	--Le choix non nul
+	inv choixNonNul : 
+		choixDebut <> null
+
+context Choix
+
+	--Les actions doivent etre differentes
+	inv actionDifferente : 
+		actions -> forAll(a1, a2 | a1.description.texte = a2.description.texte implies a1 = a2)
+
+context Action
+
+	--Les choix précedant une action doivent etre different 
+	inv choixPrecedantDifferent : 
+		choixPrecedents -> forAll(ch1, ch2 | ch1.nom = ch2.nom implies c1 = c2)
+
+	--Les connaissances transmises par une action doivent etre differentes
+	inv choixPrecedantDifferent : 
+		connaissancesTransmises -> forAll(c1, c2 | c1.connaissance.nom = c2.connaissance.nom implies c1 = c2)	
+	
+context Personne 
+
+	-- L'interaction de cette personne doit etre bien définie
+	inv interactionNul : 
+		interaction <> null
+
+
+endpackage
