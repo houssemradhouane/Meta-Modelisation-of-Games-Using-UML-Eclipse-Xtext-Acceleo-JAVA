@@ -1,0 +1,365 @@
+game EchapperPrison = {
+	lieux: [{
+		nom: Prison,
+		description: [{
+			texte: "Prison",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [],
+		chemins: [],
+		fin: true,
+		depotObjets: false
+	},{
+		nom: Room1,
+		description: [{
+			texte: "Première Chambre",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [{
+			personne: Prisonnier1,
+			visible: {
+					objet: Tentative,
+					quantite: 1,
+					comparateur: >=
+				},
+			obligatoire: true
+		}],
+		chemins: [{
+			description: [{
+				texte: "Aieee !",
+				condition: true
+			}],
+			ouvert: true,
+			visible: {
+				objet: Tentative,
+				quantite: 0,
+				comparateur: =
+			},
+			destination: Prison,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		},{
+			description: [{
+				texte: "Yes !",
+				condition: true
+			}],
+			ouvert: {objet : Cle1, quantite : 1, comparateur : =},
+			visible: true,
+			destination: Room2,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		}],
+		fin: true,
+		depotObjets: false
+	},{
+		nom: Room2,
+		description: [{
+			texte: "Deuxième Chambre",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [{
+			personne: Prisonnier2,
+			visible: {
+					objet: Tentative,
+					quantite: 1,
+					comparateur: >=
+				},
+			obligatoire: true
+		}],
+		chemins: [{
+			description: [{
+				texte: "Aieee !",
+				condition: true
+			}],
+			ouvert: true,
+			visible: {
+				objet: Tentative,
+				quantite: 0,
+				comparateur: =
+			},
+			destination: Prison,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		},{
+			description: [{
+				texte: "Ouf enfin !",
+				condition: true
+			}],
+			ouvert: true,
+			visible: {
+				connaissance: Reussite,
+				possession: true
+			},
+			destination: Succes,
+			obligatoire: true,
+			connaissancesTransmises: [],
+			objetsTransmis: [],
+			objetConsommes: []
+		}],
+		fin: true,
+		depotObjets: false
+	},{
+		nom: Succes,
+		description: [{
+			texte: "Succès",
+			condition: true
+		}],
+		connaissancesPresentes: [],
+		objetsPresents: [],
+		personnesPresentes: [],
+		chemins: [],
+		fin: true,
+		depotObjets: false
+	}],
+	objets: [{
+		nom: Tentative,
+		description: [{
+			texte: "Tentative",
+			condition: true
+		}],
+		taille: 0
+	}, {
+		nom: Cle1,
+		description: [{
+			texte: "Première Cle",
+			condition: true
+		}],
+		taille: 0
+	}, {
+		nom: Cle2,
+		description: [{
+			texte: "deuxième Cle",
+			condition: true
+		}],
+		taille: 0
+	}],
+	transformations: [],
+	connaissances: [{
+		nom: Reussite,
+		description: [{
+			texte: "Réussite",
+			condition: { objet : Cle2, quantite : 1, comparateur : =}
+		}]
+	}],
+	personnes: [{
+		nom: Prisonnier1,
+		description: [{
+			texte: "Le Prisonnier 1 demande : En ajoutant 7 à 10, j'obtiens 5.
+Comment ceci peut-il être correct ? ?",
+			condition: true
+		}],
+		interaction: {
+			choixDebut: {
+				nom: Reponse,
+				actions: [{
+					description: [{
+						texte: "6",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [{objet : Cle1, quantite : 1, transmis : true}],
+					objetConsommes: [],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "7",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "5",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "12",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "3",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "9",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				}],
+				fin: false
+			}
+		}
+	}, {
+		nom: Prisonnier2,
+		description: [{
+			texte: "j'ai des pieds et un dos mais je ne peux pas marcher, qui je suis ??",
+			condition: true
+		}],
+		interaction: {
+			choixDebut: {
+				nom: Reponse,
+				actions: [{
+					description: [{
+						texte: "6",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [{objet : Cle2, quantite : 1, transmis : true}],
+					objetConsommes: [],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "7",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "5",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "12",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "3",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				},{
+					description: [{
+						texte: "9",
+						condition: true
+					}],
+					actionProposeeCondition: true,
+					choixPrecedents: [],
+					connaissancesTransmises: [],
+					objetsTransmis: [],
+					objetConsommes: [{
+						objet: Tentative,
+						quantite: 1,
+						consomme: true
+					}],
+					prochainChoix: null
+				}],
+				fin: false
+			}
+		}
+	}],
+	explorateur: {
+		objetsPossedes: [{
+			objet: Tentative,
+			quantite: 6
+		}],
+		connaissancesPossedees: [],
+		tailleMax: 100,
+		position: Room1
+	}
+}

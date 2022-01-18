@@ -1,0 +1,26 @@
+[comment encoding = UTF-8 /]
+[module game('http://www.xtext.game/Game')]
+
+
+[template public verifyFin(aGame : Game)]
+[comment @main/]
+[comment @main/]
+[file (aGame.name + 'finish' + '.ltl', false, 'UTF-8')]
+['op finished = '/][let fs : OrderedSet(Lieu) = aGame.getFins() ] 
+[if (fs->size() > 0)]
+[for (f : Lieu | fs) separator (' \\/ ') after(';')][f.name/][/for]
+[else]
+None
+[/if]
+[/let]
+['[] (finished => dead);'/]
+['[] <> dead ;'/]
+['[] (dead => finished);'/]
+['- <> finished;'/]
+[/file]
+
+[/template]
+
+[query public getFins(j: Game) : OrderedSet(Lieu) = 
+	j.lieux->select(l | l.fin = true)->asOrderedSet()
+/]
